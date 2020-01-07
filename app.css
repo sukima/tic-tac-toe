@@ -132,7 +132,7 @@ p, dl {
 #app[data-state~="ohWon"] *[data-show~="ohWon"],
 #app[data-state~="exWon"] *[data-show~="exWon"],
 #app[data-state~="draw"] *[data-show~="draw"] {
-  display: revert;
+  display: initial;
 }
 #app[data-state~="mode:pvp"] *[data-hide~="mode:pvp"],
 #app[data-state~="mode:pvc"] *[data-hide~="mode:pvc"],
