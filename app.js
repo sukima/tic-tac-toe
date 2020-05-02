@@ -1,4 +1,4 @@
-const { Machine, interpret, assign } = XState;
+import { Machine, interpret, assign } from 'https://unpkg.com/xstate@4/dist/xstate.web.js';
 
 const EVENT_KEYS = {
   KeyQ: { type: 'FORFIT' },
@@ -176,38 +176,34 @@ function updatePage(state) {
   document.querySelector('#debugInfo').value = stateList.join(', ');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+const game = interpret(gameMachine).onTransition(updatePage).start();
 
-  const game = interpret(gameMachine).onTransition(updatePage).start();
+document.querySelector('#gameControl')
+  .addEventListener('submit', function(event) {
+    let mode = new FormData(event.target).get('gameMode');
+    event.preventDefault();
+    game.send([
+      { type: 'SET_GAME_MODE', mode },
+      { type: 'RESTART' }
+    ]);
+  });
 
-  document.querySelector('#gameControl')
-    .addEventListener('submit', function(event) {
-      let mode = new FormData(event.target).get('gameMode');
-      event.preventDefault();
-      game.send([
-        { type: 'SET_GAME_MODE', mode },
-        { type: 'RESTART' }
-      ]);
-    });
+document.querySelector('#forfitBtn')
+  .addEventListener('click', function(event) {
+    event.preventDefault();
+    game.send('FORFIT');
+  });
 
-  document.querySelector('#forfitBtn')
-    .addEventListener('click', function(event) {
-      event.preventDefault();
-      game.send('FORFIT');
-    });
+document.querySelector('#game-board')
+  .addEventListener('click', function({ target }) {
+    let position = parseInt(target.dataset.position);
+    game.send({ type: 'PLAY', position });
+  });
 
-  document.querySelector('#game-board')
-    .addEventListener('click', function({ target }) {
-      let position = parseInt(target.dataset.position);
-      game.send({ type: 'PLAY', position });
-    });
-
-  document.querySelector('body')
-    .addEventListener('keyup', function(event) {
-      let sendEvent = EVENT_KEYS[event.code];
-      if (!sendEvent) { return; }
-      event.preventDefault();
-      game.send(sendEvent);
-    });
-
-});
+document.querySelector('body')
+  .addEventListener('keyup', function(event) {
+    let sendEvent = EVENT_KEYS[event.code];
+    if (!sendEvent) { return; }
+    event.preventDefault();
+    game.send(sendEvent);
+  });
